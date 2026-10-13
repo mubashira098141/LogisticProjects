@@ -1,0 +1,16 @@
+services:
+  logistics-app:
+    image: logistics-app:1.1
+    container_name: logistics-app-compose
+    ports:
+      - "8888:8888"
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-db:3306/logistics_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-root}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:?Set database password}
+    networks:
+      - demo_default
+
+networks:
+  demo_default:
+    external: true
