@@ -1,3 +1,4 @@
+
 name: Logistics CI Pipeline
 
 on:
@@ -7,6 +8,10 @@ on:
   pull_request:
     branches:
       - main
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build:
@@ -27,4 +32,15 @@ jobs:
         run: chmod +x mvnw && ./mvnw clean package -DskipTests
 
       - name: Build Docker image
-        run: docker build -t logistics-app:${{ github.sha }} .
+        run: |
+          docker build \
+            -t ghcr.io/${{ github.repository_owner }}/logistics-app:${{ github.sha }} .
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Push Docker image
+        if: github.event_name == 'push'
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/logistics-app:${{ github.sha }}
